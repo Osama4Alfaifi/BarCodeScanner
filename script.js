@@ -5,22 +5,19 @@ function startScanner() {
   document.getElementById("errorLog").textContent = "";
   const previewElem = document.getElementById('preview');
 
-  codeReader
-    .listVideoInputDevices()
+  ZXing.BrowserMultiFormatReader.listVideoInputDevices()
     .then(videoInputDevices => {
-      const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes("back"))
-                          || videoInputDevices[0];
+      const device = videoInputDevices.find(d => d.label.toLowerCase().includes("back")) || videoInputDevices[0];
 
-      codeReader.decodeFromVideoDevice(rearCamera.deviceId, 'preview', (result, err) => {
+      return codeReader.decodeFromVideoDevice(device.deviceId, previewElem, (result, error) => {
         if (result) {
           currentCode = result.text;
-          console.log("Scanned: " + currentCode);
           codeReader.reset();
           showDataForCode(currentCode);
         }
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-          console.error("ZXing error:", err);
-          document.getElementById("errorLog").textContent = err.message;
+        if (error && !(error instanceof ZXing.NotFoundException)) {
+          console.error("Decode error", error);
+          document.getElementById("errorLog").textContent = error.message;
         }
       });
     })
