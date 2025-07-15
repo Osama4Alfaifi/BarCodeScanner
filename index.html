@@ -1,41 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Barcode Inventory</title>
+  <title>مخزون الباركود</title>
   <link rel="stylesheet" href="style.css"/>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 <body>
-  <h1>📦 Barcode Inventory</h1>
+  <h1>📦 مخزون الباركود</h1>
 
   <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
 
   <div id="output" class="hidden">
-    <p><strong>Scanned Code:</strong> <span id="codeOutput"></span></p>
+    <p><strong>الباركود:</strong> <span id="codeOutput"></span></p>
 
     <div id="savedData" class="hidden">
-      <p><strong>Name:</strong> <span id="savedName"></span></p>
-      <p><strong>Price:</strong> <span id="savedPrice"></span></p>
-      <button onclick="enableEdit()">✏️ Edit</button>
+      <p><strong>الاسم:</strong> <span id="savedName"></span></p>
+      <p><strong>السعر:</strong> <span id="savedPrice"></span></p>
+      <button onclick="enableEdit()">✏️ تعديل</button>
     </div>
 
     <div id="editButtons" class="hidden"></div>
 
     <div id="dataEntry" class="hidden">
-      <input type="text" id="nameInput" placeholder="Enter product name" />
-      <input type="number" id="priceInput" placeholder="Enter price" />
-      <button onclick="saveData()">💾 Save</button>
+      <input type="text" id="nameInput" placeholder="أدخل اسم المنتج" />
+      <input type="number" id="priceInput" placeholder="أدخل السعر" />
+      <button onclick="saveData()">💾 حفظ</button>
     </div>
 
-    <button id="deleteButton" class="hidden" onclick="deleteData()">🗑️ Delete</button>
+    <button id="deleteButton" class="hidden" onclick="deleteData()">🗑️ حذف</button>
   </div>
 
-  <h2>📋 Product List</h2>
+  <h2>📋 قائمة المنتجات</h2>
   <table id="productTable" border="1" style="margin: auto; border-collapse: collapse; width: 90%;">
     <thead>
-      <tr><th>Barcode</th><th>Name</th><th>Price</th></tr>
+      <tr><th>الباركود</th><th>الاسم</th><th>السعر</th></tr>
     </thead>
     <tbody id="productTableBody"></tbody>
   </table>
