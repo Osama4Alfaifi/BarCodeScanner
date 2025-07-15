@@ -15,15 +15,24 @@
   <div id="output" class="hidden">
     <p><strong>Scanned Code:</strong> <span id="codeOutput"></span></p>
 
+    <div id="savedData" class="hidden">
+      <p>
+        <strong>Name:</strong> <span id="savedName"></span>
+        <button onclick="enableEdit()">✏️ Edit</button>
+      </p>
+      <p>
+        <strong>Price:</strong> <span id="savedPrice"></span>
+      </p>
+    </div>
+
+    <div id="editButtons" class="hidden">
+      <!-- Just a toggle container, controlled by JS -->
+    </div>
+
     <div id="dataEntry" class="hidden">
       <input type="text" id="nameInput" placeholder="Enter product name" />
       <input type="number" id="priceInput" placeholder="Enter price" />
       <button onclick="saveData()">💾 Save</button>
-    </div>
-
-    <div id="savedData" class="hidden">
-      <p><strong>Name:</strong> <span id="savedName"></span></p>
-      <p><strong>Price:</strong> <span id="savedPrice"></span></p>
     </div>
   </div>
 
