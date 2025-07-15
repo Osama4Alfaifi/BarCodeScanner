@@ -16,25 +16,24 @@
     <p><strong>Scanned Code:</strong> <span id="codeOutput"></span></p>
 
     <div id="savedData" class="hidden">
-      <p>
-        <strong>Name:</strong> <span id="savedName"></span>
-        <button onclick="enableEdit()">✏️ Edit</button>
-      </p>
-      <p>
-        <strong>Price:</strong> <span id="savedPrice"></span>
-      </p>
+      <p><strong>Name:</strong> <span id="savedName"></span></p>
+      <p><strong>Price:</strong> <span id="savedPrice"></span></p>
+      <button onclick="enableEdit()">✏️ Edit</button>
     </div>
 
-    <div id="editButtons" class="hidden">
-      <!-- Just a toggle container, controlled by JS -->
-    </div>
+    <div id="editButtons" class="hidden"></div>
 
     <div id="dataEntry" class="hidden">
       <input type="text" id="nameInput" placeholder="Enter product name" />
       <input type="number" id="priceInput" placeholder="Enter price" />
       <button onclick="saveData()">💾 Save</button>
     </div>
+
+    <button id="deleteButton" class="hidden" onclick="deleteData()">🗑️ Delete</button>
   </div>
+
+  <h2>📋 Product List</h2>
+  <ul id="productList"></ul>
 
   <script src="script.js"></script>
 </body>
