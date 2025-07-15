@@ -1,116 +1,85 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <title>📦 مخزون الباركود</title>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-    body { font-family: 'Arial', sans-serif; text-align: center; direction: rtl; }
-    #reader, #camera-select { margin: 10px auto; }
-    table { margin: auto; border-collapse: collapse; width: 90%; }
+    body { font-family: Arial; text-align: center; direction: rtl; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; }
     th, td { border: 1px solid #ccc; padding: 8px; }
-    input { padding: 5px; margin: 5px; width: 90%; }
-    #start-button { padding: 10px 20px; font-size: 16px; margin: 10px; }
-    .warning { color: red; margin-top: 10px; }
+    th { background-color: #f2f2f2; }
+    video { width: 100%; max-width: 400px; margin: auto; }
   </style>
 </head>
 <body>
+  <h1>📦 مخزون الباركود</h1>
 
-  <h2>📦 مخزون الباركود</h2>
+  <button onclick="startCamera()">📷 ابدأ الكاميرا</button>
+  <div id="reader" style="width: 300px; height: 300px; margin: 20px auto;"></div>
 
-  <button id="start-button" onclick="startScanner()">📷 بدء الكاميرا</button>
-  <div class="warning">📱 إذا كنت تستخدم آيفون، تأكد من وجود إنارة كافية وقرب الباركود من الكاميرا</div>
-
-  <div id="reader" style="width:300px; display: none;"></div>
-  <input type="file" accept="image/*" onchange="handleFile(this)" />
-
-  <div id="product-form" style="display: none;">
-    <h3>أدخل بيانات المنتج</h3>
-    <input type="text" id="name" placeholder="الاسم"><br>
-    <input type="text" id="price" placeholder="السعر"><br>
-    <button onclick="saveProduct()">💾 حفظ</button>
-  </div>
-
-  <h3>📋 قائمة المنتجات</h3>
-  <table>
-    <thead><tr><th>الباركود</th><th>الاسم</th><th>السعر</th><th>إجراءات</th></tr></thead>
-    <tbody id="product-table"></tbody>
+  <h2>📋 قائمة المنتجات</h2>
+  <table id="productsTable">
+    <tr>
+      <th>الباركود</th>
+      <th>الاسم</th>
+      <th>السعر</th>
+    </tr>
   </table>
 
   <script>
-    let currentBarcode = "";
-    let html5QrCode;
+    const html5QrCode = new Html5Qrcode("reader");
 
-    function updateTable() {
-      const data = JSON.parse(localStorage.getItem("products") || "{}");
-      const table = document.getElementById("product-table");
-      table.innerHTML = "";
-      for (const [barcode, { name, price }] of Object.entries(data)) {
-        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td><td><button onclick="editProduct('${barcode}')">✏️ تعديل</button> <button onclick="deleteProduct('${barcode}')">🗑️ حذف</button></td></tr>`;
-      }
-    }
-
-    function saveProduct() {
-      const name = document.getElementById("name").value;
-      const price = document.getElementById("price").value;
-      const products = JSON.parse(localStorage.getItem("products") || "{}");
-      products[currentBarcode] = { name, price };
-      localStorage.setItem("products", JSON.stringify(products));
-      document.getElementById("product-form").style.display = "none";
-      updateTable();
-    }
-
-    function editProduct(barcode) {
-      const products = JSON.parse(localStorage.getItem("products") || "{}");
-      if (products[barcode]) {
-        document.getElementById("name").value = products[barcode].name;
-        document.getElementById("price").value = products[barcode].price;
-        currentBarcode = barcode;
-        document.getElementById("product-form").style.display = "block";
-      }
-    }
-
-    function deleteProduct(barcode) {
-      const products = JSON.parse(localStorage.getItem("products") || "{}");
-      if (confirm("هل أنت متأكد أنك تريد حذف هذا المنتج؟")) {
-        delete products[barcode];
-        localStorage.setItem("products", JSON.stringify(products));
-        updateTable();
-      }
-    }
-
-    function handleFile(input) {
-      const file = input.files[0];
-      if (!file) return;
-      if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.scanFile(file, true).then(onScanSuccess).catch(() => alert("فشل الفحص من الصورة"));
-    }
-
-    function onScanSuccess(decodedText) {
-      currentBarcode = decodedText;
-      const products = JSON.parse(localStorage.getItem("products") || "{}");
-      if (products[decodedText]) {
-        alert(`📦 موجود بالفعل:\nالاسم: ${products[decodedText].name}\nالسعر: ${products[decodedText].price}`);
-      } else {
-        document.getElementById("product-form").style.display = "block";
-      }
-    }
-
-    function startScanner() {
-      document.getElementById("reader").style.display = "block";
-      html5QrCode = new Html5Qrcode("reader");
-      Html5Qrcode.getCameras().then(cameras => {
-        const backCam = cameras.find(c => c.label.toLowerCase().includes("back")) || cameras[0];
-        html5QrCode.start(
-          { deviceId: { exact: backCam.id } },
-          { fps: 10, qrbox: { width: 250, height: 150 }, aspectRatio: 1.333 },
-          onScanSuccess
-        ).catch(err => alert("فشل بدء الكاميرا"));
+    function startCamera() {
+      Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length) {
+          const cameraId = devices[0].id;
+          html5QrCode.start(
+            cameraId,
+            { fps: 10, qrbox: 250 },
+            qrCodeMessage => {
+              onBarcodeScanned(qrCodeMessage);
+              html5QrCode.stop();
+            },
+            errorMessage => {}
+          );
+        }
+      }).catch(err => {
+        console.error("Camera error:", err);
       });
     }
 
-    updateTable();
+    function onBarcodeScanned(code) {
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+
+      if (products[code]) {
+        const product = products[code];
+        addToTable(code, product.name, product.price);
+      } else {
+        const name = prompt("أدخل اسم المنتج:");
+        const price = prompt("أدخل السعر:");
+        if (name && price) {
+          products[code] = { name, price };
+          localStorage.setItem("products", JSON.stringify(products));
+          addToTable(code, name, price);
+        }
+      }
+    }
+
+    function addToTable(barcode, name, price) {
+      const table = document.getElementById("productsTable");
+      const row = table.insertRow(-1);
+      row.insertCell(0).innerText = barcode;
+      row.insertCell(1).innerText = name;
+      row.insertCell(2).innerText = price;
+    }
+
+    window.onload = function () {
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      for (const [code, info] of Object.entries(products)) {
+        addToTable(code, info.name, info.price);
+      }
+    };
   </script>
 </body>
 </html>
