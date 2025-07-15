@@ -28,6 +28,7 @@ function onScanSuccess(decodedText, decodedResult) {
   html5QrcodeScanner.clear();
 }
 
+
 function enableEdit() {
   document.getElementById('dataEntry').classList.remove('hidden');
   document.getElementById('editButtons').classList.add('hidden');
