@@ -56,8 +56,7 @@
         cameraId,
         { fps: 10, qrbox: 250 },
         qrCodeMessage => {
-          onBarcodeScanned(qrCodeMessage);
-          html5QrCode.stop();
+          handleScannedBarcode(qrCodeMessage);
         },
         errorMessage => {}
       );
@@ -69,7 +68,7 @@
 
       html5QrCode.scanFile(file, true)
         .then(qrCodeMessage => {
-          onBarcodeScanned(qrCodeMessage);
+          handleScannedBarcode(qrCodeMessage);
         })
         .catch(err => {
           alert("تعذر قراءة الباركود من الصورة.");
@@ -77,11 +76,12 @@
         });
     }
 
-    function onBarcodeScanned(code) {
+    function handleScannedBarcode(code) {
       const products = JSON.parse(localStorage.getItem("products") || "{}");
 
       if (products[code]) {
         updateTableRow(code, products[code].name, products[code].price);
+        alert(`تم العثور على المنتج: ${products[code].name}`);
       } else {
         const name = prompt("أدخل اسم المنتج:");
         const price = prompt("أدخل السعر:");
@@ -94,9 +94,9 @@
     }
 
     function addToTable(barcode, name, price) {
-      const table = document.getElementById("productsTable");
       if (document.getElementById("row-" + barcode)) return;
 
+      const table = document.getElementById("productsTable");
       const row = table.insertRow(-1);
       row.id = "row-" + barcode;
       row.insertCell(0).innerText = barcode;
@@ -123,8 +123,6 @@
       if (row) {
         row.cells[1].innerText = name;
         row.cells[2].innerText = price;
-      } else {
-        addToTable(barcode, name, price);
       }
     }
 
