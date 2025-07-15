@@ -11,14 +11,18 @@
     table { margin: auto; border-collapse: collapse; width: 90%; }
     th, td { border: 1px solid #ccc; padding: 8px; }
     input { padding: 5px; margin: 5px; width: 90%; }
+    #start-button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+    .warning { color: red; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <h2>📦 مخزون الباركود</h2>
 
-  <select id="camera-select"></select><br>
-  <div id="reader" style="width:300px;"></div>
+  <button id="start-button" onclick="startScanner()">📷 بدء الكاميرا</button>
+  <div class="warning">📱 إذا كنت تستخدم آيفون، تأكد من وجود إنارة كافية وقرب الباركود من الكاميرا</div>
+
+  <div id="reader" style="width:300px; display: none;"></div>
   <input type="file" accept="image/*" onchange="handleFile(this)" />
 
   <div id="product-form" style="display: none;">
@@ -36,14 +40,14 @@
 
   <script>
     let currentBarcode = "";
-    let html5QrCode = new Html5Qrcode("reader");
+    let html5QrCode;
 
     function updateTable() {
       const data = JSON.parse(localStorage.getItem("products") || "{}");
       const table = document.getElementById("product-table");
       table.innerHTML = "";
       for (const [barcode, { name, price }] of Object.entries(data)) {
-        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td><td><button onclick="editProduct(\'${barcode}\')">✏️ تعديل</button> <button onclick="deleteProduct(\'${barcode}\')">🗑️ حذف</button></td></tr>`;
+        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td><td><button onclick="editProduct('${barcode}')">✏️ تعديل</button> <button onclick="deleteProduct('${barcode}')">🗑️ حذف</button></td></tr>`;
       }
     }
 
@@ -54,8 +58,8 @@
       products[currentBarcode] = { name, price };
       localStorage.setItem("products", JSON.stringify(products));
       document.getElementById("product-form").style.display = "none";
-      
-    updateTable();
+      updateTable();
+    }
 
     function editProduct(barcode) {
       const products = JSON.parse(localStorage.getItem("products") || "{}");
@@ -75,7 +79,12 @@
         updateTable();
       }
     }
-    
+
+    function handleFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.scanFile(file, true).then(onScanSuccess).catch(() => alert("فشل الفحص من الصورة"));
     }
 
     function onScanSuccess(decodedText) {
@@ -88,64 +97,20 @@
       }
     }
 
-    function handleFile(input) {
-      const file = input.files[0];
-      if (!file) return;
-      html5QrCode.scanFile(file, true).then(onScanSuccess).catch(e => alert("فشل الفحص من الصورة"));
-    }
-
-    Html5Qrcode.getCameras().then(cameras => {
-      const select = document.getElementById("camera-select");
-      cameras.forEach(cam => {
-        const option = document.createElement("option");
-        option.value = cam.id;
-        option.text = cam.label || `كاميرا ${select.length + 1}`;
-        select.appendChild(option);
+    function startScanner() {
+      document.getElementById("reader").style.display = "block";
+      html5QrCode = new Html5Qrcode("reader");
+      Html5Qrcode.getCameras().then(cameras => {
+        const backCam = cameras.find(c => c.label.toLowerCase().includes("back")) || cameras[0];
+        html5QrCode.start(
+          { deviceId: { exact: backCam.id } },
+          { fps: 10, qrbox: { width: 250, height: 150 }, aspectRatio: 1.333 },
+          onScanSuccess
+        ).catch(err => alert("فشل بدء الكاميرا"));
       });
-
-      if (cameras.length > 0) {
-        startScanner(cameras[0].id);
-      }
-
-      select.onchange = () => {
-        html5QrCode.stop().then(() => startScanner(select.value));
-      };
-    });
-
-    function startScanner(cameraId) {
-      html5QrCode.start(
-        cameraId,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 150 },
-          aspectRatio: 1.3333
-        },
-        onScanSuccess
-      ).catch(err => console.error(err));
     }
 
-    
     updateTable();
-
-    function editProduct(barcode) {
-      const products = JSON.parse(localStorage.getItem("products") || "{}");
-      if (products[barcode]) {
-        document.getElementById("name").value = products[barcode].name;
-        document.getElementById("price").value = products[barcode].price;
-        currentBarcode = barcode;
-        document.getElementById("product-form").style.display = "block";
-      }
-    }
-
-    function deleteProduct(barcode) {
-      const products = JSON.parse(localStorage.getItem("products") || "{}");
-      if (confirm("هل أنت متأكد أنك تريد حذف هذا المنتج؟")) {
-        delete products[barcode];
-        localStorage.setItem("products", JSON.stringify(products));
-        updateTable();
-      }
-    }
-    
   </script>
 </body>
 </html>
