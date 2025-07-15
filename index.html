@@ -2,27 +2,25 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>📦 مخزون الباركود</title>
+  <title>📷 قارئ الباركود</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body { font-family: Arial; text-align: center; direction: rtl; }
-    table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+    #reader { width: 300px; height: 300px; margin: 20px auto; border: 1px solid #ccc; }
+    button, select, input[type=file] { padding: 10px; font-size: 16px; margin: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; }
     th { background-color: #f2f2f2; }
-    video { width: 100%; max-width: 400px; margin: auto; }
-    select, button, input[type=file] { margin-top: 10px; padding: 8px; font-size: 16px; }
-    .action-btn { margin: 0 5px; }
+    .action-btn { margin: 0 4px; }
   </style>
 </head>
 <body>
-  <h1>📦 مخزون الباركود</h1>
-
+  <h1>📦 نظام إدارة المنتجات بالباركود</h1>
   <select id="cameraSelect"></select>
-  <button onclick="startCamera()">📷 ابدأ الكاميرا</button>
+  <button onclick="startScanner()">📷 ابدأ المسح</button>
   <input type="file" accept="image/*" onchange="scanFromGallery(event)">
-  <div id="reader" style="width: 300px; height: 300px; margin: 20px auto;"></div>
+  <div id="reader"></div>
 
-  <h2>📋 قائمة المنتجات</h2>
   <table id="productsTable">
     <tr>
       <th>الباركود</th>
@@ -33,7 +31,7 @@
   </table>
 
   <script>
-    const html5QrCode = new Html5Qrcode("reader");
+    let html5QrCode = new Html5Qrcode("reader");
 
     Html5Qrcode.getCameras().then(devices => {
       const select = document.getElementById("cameraSelect");
@@ -43,22 +41,19 @@
         option.text = device.label || `كاميرا ${select.length + 1}`;
         select.appendChild(option);
       });
-
-      const backCamera = devices.find(d => d.label.toLowerCase().includes("back"));
-      if (backCamera) {
-        select.value = backCamera.id;
-      }
+      const back = devices.find(d => d.label.toLowerCase().includes("back"));
+      if (back) select.value = back.id;
     });
 
-    function startCamera() {
-      const cameraId = document.getElementById("cameraSelect").value;
+    function startScanner() {
+      const camId = document.getElementById("cameraSelect").value;
       html5QrCode.start(
-        cameraId,
+        camId,
         { fps: 10, qrbox: 250 },
         qrCodeMessage => {
-          handleScannedBarcode(qrCodeMessage);
+          handleScan(qrCodeMessage);
         },
-        errorMessage => {}
+        error => {}
       );
     }
 
@@ -66,34 +61,34 @@
       const file = event.target.files[0];
       if (!file) return;
 
-      html5QrCode.scanFile(file, true)
-        .then(qrCodeMessage => {
-          handleScannedBarcode(qrCodeMessage);
-        })
-        .catch(err => {
-          alert("تعذر قراءة الباركود من الصورة.");
-          console.error(err);
-        });
+      html5QrCode.stop().then(() => {
+        return html5QrCode.scanFile(file, true);
+      }).then(qrCodeMessage => {
+        handleScan(qrCodeMessage);
+      }).catch(err => {
+        alert("تعذر قراءة الصورة");
+        console.error(err);
+      });
     }
 
-    function handleScannedBarcode(code) {
+    function handleScan(code) {
       const products = JSON.parse(localStorage.getItem("products") || "{}");
 
       if (products[code]) {
-        updateTableRow(code, products[code].name, products[code].price);
-        alert(`تم العثور على المنتج: ${products[code].name}`);
+        alert("المنتج موجود: " + products[code].name);
+        updateRow(code, products[code].name, products[code].price);
       } else {
         const name = prompt("أدخل اسم المنتج:");
         const price = prompt("أدخل السعر:");
         if (name && price) {
           products[code] = { name, price };
           localStorage.setItem("products", JSON.stringify(products));
-          addToTable(code, name, price);
+          addRow(code, name, price);
         }
       }
     }
 
-    function addToTable(barcode, name, price) {
+    function addRow(barcode, name, price) {
       if (document.getElementById("row-" + barcode)) return;
 
       const table = document.getElementById("productsTable");
@@ -105,41 +100,43 @@
       const actions = row.insertCell(3);
 
       const editBtn = document.createElement("button");
-      editBtn.textContent = "✏️ تعديل";
       editBtn.className = "action-btn";
+      editBtn.innerText = "✏️ تعديل";
       editBtn.onclick = () => editProduct(barcode);
 
       const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "🗑️ حذف";
       deleteBtn.className = "action-btn";
-      deleteBtn.onclick = () => removeProduct(barcode);
+      deleteBtn.innerText = "🗑️ حذف";
+      deleteBtn.onclick = () => deleteProduct(barcode);
 
       actions.appendChild(editBtn);
       actions.appendChild(deleteBtn);
     }
 
-    function updateTableRow(barcode, name, price) {
+    function updateRow(barcode, name, price) {
       const row = document.getElementById("row-" + barcode);
       if (row) {
         row.cells[1].innerText = name;
         row.cells[2].innerText = price;
+      } else {
+        addRow(barcode, name, price);
       }
     }
 
     function editProduct(barcode) {
       const products = JSON.parse(localStorage.getItem("products") || "{}");
-      const current = products[barcode];
-      const newName = prompt("اسم جديد:", current.name);
-      const newPrice = prompt("سعر جديد:", current.price);
+      const product = products[barcode];
+      const newName = prompt("اسم جديد:", product.name);
+      const newPrice = prompt("سعر جديد:", product.price);
 
       if (newName && newPrice) {
         products[barcode] = { name: newName, price: newPrice };
         localStorage.setItem("products", JSON.stringify(products));
-        updateTableRow(barcode, newName, newPrice);
+        updateRow(barcode, newName, newPrice);
       }
     }
 
-    function removeProduct(barcode) {
+    function deleteProduct(barcode) {
       const row = document.getElementById("row-" + barcode);
       if (row) row.remove();
 
@@ -148,10 +145,10 @@
       localStorage.setItem("products", JSON.stringify(products));
     }
 
-    window.onload = function () {
+    window.onload = () => {
       const products = JSON.parse(localStorage.getItem("products") || "{}");
-      for (const [code, info] of Object.entries(products)) {
-        addToTable(code, info.name, info.price);
+      for (const [barcode, data] of Object.entries(products)) {
+        addRow(barcode, data.name, data.price);
       }
     };
   </script>
