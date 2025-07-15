@@ -158,7 +158,21 @@
       });
     }
 
+    
+    function filterTable() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#productsTable tr:not(:first-child)");
+      rows.forEach(row => {
+        const nameCell = row.cells[1];
+        if (nameCell) {
+          const name = nameCell.innerText.toLowerCase();
+          row.style.display = name.includes(input) ? "" : "none";
+        }
+      });
+    }
+
     window.onload = () => {
+    
     
       const products = JSON.parse(localStorage.getItem("products") || "{}");
       for (const [barcode, data] of Object.entries(products)) {
