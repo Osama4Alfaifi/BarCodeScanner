@@ -8,6 +8,7 @@ function enableEdit() {
   document.getElementById('savedData').classList.add('hidden');
 }
 
+
 function saveData() {
   const name = document.getElementById('nameInput').value;
   const price = document.getElementById('priceInput').value;
