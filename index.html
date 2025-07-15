@@ -15,7 +15,8 @@
     <select id="cameraSelect"></select>
     <button onclick="startScanner()">📷 ابدأ المسح</button>
     <button onclick="stopScanner()">⏹ إيقاف المسح</button>
-    <input type="file" id="galleryInput" accept="image/*" capture="environment">
+    <label for="galleryInput" class="gallery-btn">📁 اختر من المعرض</label>
+    <input type="file" id="galleryInput" accept="image/*">
   </div>
 
   <div id="reader"></div>
@@ -25,17 +26,19 @@
     <input type="text" id="searchInput" placeholder="ابحث عن منتج..." oninput="filterTable()">
   </div>
 
-  <table id="productsTable">
-    <thead>
-      <tr>
-        <th>الباركود</th>
-        <th>الاسم</th>
-        <th>السعر</th>
-        <th>إجراءات</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="table-container">
+    <table id="productsTable">
+      <thead>
+        <tr>
+          <th>الباركود</th>
+          <th>الاسم</th>
+          <th>السعر</th>
+          <th>إجراءات</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script>
     let html5QrCode;
