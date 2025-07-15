@@ -5,7 +5,6 @@
   <title>📷 قارئ الباركود</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-
     body { font-family: Arial; text-align: center; direction: rtl; }
     #reader { width: 300px; height: 300px; margin: 20px auto; border: 1px solid #ccc; }
     button, select, input[type=file] { padding: 10px; font-size: 16px; margin: 10px; }
@@ -26,7 +25,7 @@
     <tr>
       <th>الباركود</th>
       <th>الاسم</th>
-      <th>السعر</th><th>الصورة</th>
+      <th>السعر</th>
       <th>إجراءات</th>
     </tr>
   </table>
@@ -72,46 +71,13 @@
       });
     }
 
-    
     function handleScan(code) {
       const products = JSON.parse(localStorage.getItem("products") || "{}");
 
       if (products[code]) {
         alert("المنتج موجود: " + products[code].name);
-        updateRow(code, products[code].name, products[code].price, products[code].image || "");
+        updateRow(code, products[code].name, products[code].price);
       } else {
-        const name = prompt("أدخل اسم المنتج:");
-        const price = prompt("أدخل السعر:");
-        if (name && price) {
-          const imageInput = document.createElement("input");
-          imageInput.type = "file";
-          imageInput.accept = "image/*";
-          imageInput.style.display = "none";
-          document.body.appendChild(imageInput);
-          imageInput.click();
-
-          imageInput.onchange = () => {
-            const file = imageInput.files[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = function(e) {
-                products[code] = { name, price, image: e.target.result };
-                localStorage.setItem("products", JSON.stringify(products));
-                addRow(code, name, price, e.target.result);
-                imageInput.remove();
-              };
-              reader.readAsDataURL(file);
-            } else {
-              products[code] = { name, price, image: "" };
-              localStorage.setItem("products", JSON.stringify(products));
-              addRow(code, name, price, "");
-              imageInput.remove();
-            }
-          };
-        }
-      }
-    }
- else {
         const name = prompt("أدخل اسم المنتج:");
         const price = prompt("أدخل السعر:");
         if (name && price) {
@@ -122,7 +88,7 @@
       }
     }
 
-    function addRow(barcode, name, price, image) {
+    function addRow(barcode, name, price) {
       if (document.getElementById("row-" + barcode)) return;
 
       const table = document.getElementById("productsTable");
@@ -131,16 +97,6 @@
       row.insertCell(0).innerText = barcode;
       row.insertCell(1).innerText = name;
       row.insertCell(2).innerText = price;
-      const imgCell = row.insertCell(3);
-      if (image) {
-        const img = document.createElement("img");
-        img.src = image;
-        img.style.width = "50px";
-        img.style.height = "50px";
-        imgCell.appendChild(img);
-      } else {
-        imgCell.innerText = "—";
-      }
       const actions = row.insertCell(3);
 
       const editBtn = document.createElement("button");
@@ -157,7 +113,7 @@
       actions.appendChild(deleteBtn);
     }
 
-    function updateRow(barcode, name, price, image) {
+    function updateRow(barcode, name, price) {
       const row = document.getElementById("row-" + barcode);
       if (row) {
         row.cells[1].innerText = name;
@@ -176,7 +132,7 @@
       if (newName && newPrice) {
         products[barcode] = { name: newName, price: newPrice };
         localStorage.setItem("products", JSON.stringify(products));
-        updateRow(barcode, newName, newPrice, products[barcode].image || "");
+        updateRow(barcode, newName, newPrice);
       }
     }
 
@@ -220,7 +176,7 @@
     
       const products = JSON.parse(localStorage.getItem("products") || "{}");
       for (const [barcode, data] of Object.entries(products)) {
-        addRow(barcode, data.name, data.price, data.image || "");
+        addRow(barcode, data.name, data.price);
       }
     };
   </script>
