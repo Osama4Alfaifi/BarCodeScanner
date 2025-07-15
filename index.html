@@ -30,7 +30,7 @@
 
   <h3>📋 قائمة المنتجات</h3>
   <table>
-    <thead><tr><th>الباركود</th><th>الاسم</th><th>السعر</th></tr></thead>
+    <thead><tr><th>الباركود</th><th>الاسم</th><th>السعر</th><th>إجراءات</th></tr></thead>
     <tbody id="product-table"></tbody>
   </table>
 
@@ -43,7 +43,7 @@
       const table = document.getElementById("product-table");
       table.innerHTML = "";
       for (const [barcode, { name, price }] of Object.entries(data)) {
-        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td></tr>`;
+        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td><td><button onclick=\"editProduct(\"${barcode}\")\">✏️ تعديل</button> <button onclick=\"deleteProduct(\"${barcode}\")\">🗑️ حذف</button></td></tr>`;
       }
     }
 
@@ -54,7 +54,28 @@
       products[currentBarcode] = { name, price };
       localStorage.setItem("products", JSON.stringify(products));
       document.getElementById("product-form").style.display = "none";
-      updateTable();
+      
+    updateTable();
+
+    function editProduct(barcode) {
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      if (products[barcode]) {
+        document.getElementById("name").value = products[barcode].name;
+        document.getElementById("price").value = products[barcode].price;
+        currentBarcode = barcode;
+        document.getElementById("product-form").style.display = "block";
+      }
+    }
+
+    function deleteProduct(barcode) {
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      if (confirm("هل أنت متأكد أنك تريد حذف هذا المنتج؟")) {
+        delete products[barcode];
+        localStorage.setItem("products", JSON.stringify(products));
+        updateTable();
+      }
+    }
+    
     }
 
     function onScanSuccess(decodedText) {
@@ -103,7 +124,28 @@
       ).catch(err => console.error(err));
     }
 
+    
     updateTable();
+
+    function editProduct(barcode) {
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      if (products[barcode]) {
+        document.getElementById("name").value = products[barcode].name;
+        document.getElementById("price").value = products[barcode].price;
+        currentBarcode = barcode;
+        document.getElementById("product-form").style.display = "block";
+      }
+    }
+
+    function deleteProduct(barcode) {
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      if (confirm("هل أنت متأكد أنك تريد حذف هذا المنتج؟")) {
+        delete products[barcode];
+        localStorage.setItem("products", JSON.stringify(products));
+        updateTable();
+      }
+    }
+    
   </script>
 </body>
 </html>
