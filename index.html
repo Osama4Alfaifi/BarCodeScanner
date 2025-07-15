@@ -43,7 +43,7 @@
       const table = document.getElementById("product-table");
       table.innerHTML = "";
       for (const [barcode, { name, price }] of Object.entries(data)) {
-        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td><td><button onclick=\"editProduct(\"${barcode}\")\">✏️ تعديل</button> <button onclick=\"deleteProduct(\"${barcode}\")\">🗑️ حذف</button></td></tr>`;
+        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td><td><button onclick="editProduct(\'${barcode}\')">✏️ تعديل</button> <button onclick="deleteProduct(\'${barcode}\')">🗑️ حذف</button></td></tr>`;
       }
     }
 
