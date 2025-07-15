@@ -53,8 +53,8 @@ function deleteData() {
 }
 
 function updateProductList() {
-  const table = document.getElementById('productTable');
-  table.innerHTML = '<tr><th>Barcode</th><th>Name</th><th>Price</th></tr>';
+  const tbody = document.getElementById('productTableBody');
+  tbody.innerHTML = '';
   for (let i = 0; i < localStorage.length; i++) {
     const code = localStorage.key(i);
     if (code === "HTML5_QRCODE_DATA") continue;
@@ -62,7 +62,7 @@ function updateProductList() {
       const { name, price } = JSON.parse(localStorage.getItem(code));
       const row = document.createElement('tr');
       row.innerHTML = `<td>${code}</td><td>${name}</td><td>${price}</td>`;
-      table.appendChild(row);
+      tbody.appendChild(row);
     } catch (err) {
       continue;
     }
