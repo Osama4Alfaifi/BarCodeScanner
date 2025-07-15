@@ -1,47 +1,85 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>مخزون الباركود - ZXing</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://unpkg.com/@zxing/browser@latest"></script>
+  <title>📦 مخزون الباركود</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    body { font-family: 'Arial', sans-serif; text-align: center; direction: rtl; }
+    #reader { width: 300px; margin: auto; }
+    table { margin: auto; border-collapse: collapse; width: 90%; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    input { padding: 5px; margin: 5px; width: 90%; }
+    .form-group { margin: 10px 0; }
+  </style>
 </head>
 <body>
-  
-  <h1>📦 مخزون الباركود</h1>
 
-  <video id="video" width="100%" style="max-width: 400px; border: 1px solid #ccc;"></video>
+  <h2>📦 مخزون الباركود</h2>
+  <div id="reader"></div>
 
-  <div id="output" class="hidden">
-    <p><strong>الباركود:</strong> <span id="codeOutput"></span></p>
-
-    <div id="savedData" class="hidden">
-      <p><strong>الاسم:</strong> <span id="savedName"></span></p>
-      <p><strong>السعر:</strong> <span id="savedPrice"></span></p>
-      <button onclick="enableEdit()">✏️ تعديل</button>
+  <div id="product-form" style="display: none;">
+    <h3>أدخل بيانات المنتج</h3>
+    <div class="form-group">
+      <label>الاسم:</label>
+      <input type="text" id="name">
     </div>
-
-    <div id="editButtons" class="hidden"></div>
-
-    <div id="dataEntry" class="hidden">
-      <input type="text" id="nameInput" placeholder="أدخل اسم المنتج" />
-      <input type="number" id="priceInput" placeholder="أدخل السعر" />
-      <button onclick="saveData()">💾 حفظ</button>
+    <div class="form-group">
+      <label>السعر:</label>
+      <input type="text" id="price">
     </div>
-
-    <button id="deleteButton" class="hidden" onclick="deleteData()">🗑️ حذف</button>
-    <button id="backToScanButton" class="hidden" onclick="location.reload()">🔄 رجوع للرئيسية</button>
+    <button onclick="saveProduct()">💾 حفظ</button>
   </div>
 
-  <h2>📋 قائمة المنتجات</h2>
-  <table id="productTable" border="1" style="margin: auto; border-collapse: collapse; width: 90%;">
+  <h3>📋 قائمة المنتجات</h3>
+  <table>
     <thead>
       <tr><th>الباركود</th><th>الاسم</th><th>السعر</th></tr>
     </thead>
-    <tbody id="productTableBody"></tbody>
+    <tbody id="product-table"></tbody>
   </table>
 
-  <script src="zxing-script.js"></script>
+  <script>
+    let currentBarcode = "";
+
+    function updateTable() {
+      const data = JSON.parse(localStorage.getItem("products") || "{}");
+      const table = document.getElementById("product-table");
+      table.innerHTML = "";
+      for (const [barcode, { name, price }] of Object.entries(data)) {
+        const row = `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td></tr>`;
+        table.innerHTML += row;
+      }
+    }
+
+    function saveProduct() {
+      const name = document.getElementById("name").value;
+      const price = document.getElementById("price").value;
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      products[currentBarcode] = { name, price };
+      localStorage.setItem("products", JSON.stringify(products));
+      document.getElementById("product-form").style.display = "none";
+      updateTable();
+    }
+
+    function onScanSuccess(decodedText) {
+      currentBarcode = decodedText;
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      if (products[decodedText]) {
+        alert(`📦 موجود بالفعل:\nالاسم: ${products[decodedText].name}\nالسعر: ${products[decodedText].price}`);
+      } else {
+        document.getElementById("product-form").style.display = "block";
+      }
+    }
+
+    new Html5Qrcode("reader").start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 150 } },
+      onScanSuccess
+    );
+
+    updateTable();
+  </script>
 </body>
 </html>
