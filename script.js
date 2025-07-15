@@ -8,11 +8,13 @@ function onScanSuccess(decodedText, decodedResult) {
   const saved = localStorage.getItem(currentCode);
   if (saved) {
     const data = JSON.parse(saved);
-    document.getElementById('savedName').textContent = data.name;
-    document.getElementById('savedPrice').textContent = data.price;
-    document.getElementById('savedData').classList.remove('hidden');
-    document.getElementById('dataEntry').classList.add('hidden');
+    document.getElementById('nameInput').value = data.name;
+    document.getElementById('priceInput').value = data.price;
+    document.getElementById('savedData').classList.add('hidden');
+    document.getElementById('dataEntry').classList.remove('hidden');
   } else {
+    document.getElementById('nameInput').value = '';
+    document.getElementById('priceInput').value = '';
     document.getElementById('savedData').classList.add('hidden');
     document.getElementById('dataEntry').classList.remove('hidden');
   }
