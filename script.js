@@ -28,7 +28,6 @@ function onScanSuccess(decodedText, decodedResult) {
   html5QrcodeScanner.clear();
 }
 
-
 function enableEdit() {
   document.getElementById('dataEntry').classList.remove('hidden');
   document.getElementById('editButtons').classList.add('hidden');
@@ -54,14 +53,19 @@ function deleteData() {
 }
 
 function updateProductList() {
-  const productList = document.getElementById('productList');
-  productList.innerHTML = '';
+  const table = document.getElementById('productTable');
+  table.innerHTML = '<tr><th>Barcode</th><th>Name</th><th>Price</th></tr>';
   for (let i = 0; i < localStorage.length; i++) {
     const code = localStorage.key(i);
-    const { name, price } = JSON.parse(localStorage.getItem(code));
-    const item = document.createElement('li');
-    item.textContent = `Code: ${code} | Name: ${name} | Price: ${price}`;
-    productList.appendChild(item);
+    if (code === "HTML5_QRCODE_DATA") continue;
+    try {
+      const { name, price } = JSON.parse(localStorage.getItem(code));
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${code}</td><td>${name}</td><td>${price}</td>`;
+      table.appendChild(row);
+    } catch (err) {
+      continue;
+    }
   }
 }
 
