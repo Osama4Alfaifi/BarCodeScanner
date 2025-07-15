@@ -7,49 +7,43 @@
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     body { font-family: 'Arial', sans-serif; text-align: center; direction: rtl; }
-    #reader { width: 300px; margin: auto; }
+    #reader, #camera-select { margin: 10px auto; }
     table { margin: auto; border-collapse: collapse; width: 90%; }
     th, td { border: 1px solid #ccc; padding: 8px; }
     input { padding: 5px; margin: 5px; width: 90%; }
-    .form-group { margin: 10px 0; }
   </style>
 </head>
 <body>
 
   <h2>📦 مخزون الباركود</h2>
-  <div id="reader"></div>
+
+  <select id="camera-select"></select><br>
+  <div id="reader" style="width:300px;"></div>
+  <input type="file" accept="image/*" onchange="handleFile(this)" />
 
   <div id="product-form" style="display: none;">
     <h3>أدخل بيانات المنتج</h3>
-    <div class="form-group">
-      <label>الاسم:</label>
-      <input type="text" id="name">
-    </div>
-    <div class="form-group">
-      <label>السعر:</label>
-      <input type="text" id="price">
-    </div>
+    <input type="text" id="name" placeholder="الاسم"><br>
+    <input type="text" id="price" placeholder="السعر"><br>
     <button onclick="saveProduct()">💾 حفظ</button>
   </div>
 
   <h3>📋 قائمة المنتجات</h3>
   <table>
-    <thead>
-      <tr><th>الباركود</th><th>الاسم</th><th>السعر</th></tr>
-    </thead>
+    <thead><tr><th>الباركود</th><th>الاسم</th><th>السعر</th></tr></thead>
     <tbody id="product-table"></tbody>
   </table>
 
   <script>
     let currentBarcode = "";
+    let html5QrCode = new Html5Qrcode("reader");
 
     function updateTable() {
       const data = JSON.parse(localStorage.getItem("products") || "{}");
       const table = document.getElementById("product-table");
       table.innerHTML = "";
       for (const [barcode, { name, price }] of Object.entries(data)) {
-        const row = `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td></tr>`;
-        table.innerHTML += row;
+        table.innerHTML += `<tr><td>${barcode}</td><td>${name}</td><td>${price}</td></tr>`;
       }
     }
 
@@ -73,11 +67,41 @@
       }
     }
 
-    new Html5Qrcode("reader").start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 250, height: 150 } },
-      onScanSuccess
-    );
+    function handleFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      html5QrCode.scanFile(file, true).then(onScanSuccess).catch(e => alert("فشل الفحص من الصورة"));
+    }
+
+    Html5Qrcode.getCameras().then(cameras => {
+      const select = document.getElementById("camera-select");
+      cameras.forEach(cam => {
+        const option = document.createElement("option");
+        option.value = cam.id;
+        option.text = cam.label || `كاميرا ${select.length + 1}`;
+        select.appendChild(option);
+      });
+
+      if (cameras.length > 0) {
+        startScanner(cameras[0].id);
+      }
+
+      select.onchange = () => {
+        html5QrCode.stop().then(() => startScanner(select.value));
+      };
+    });
+
+    function startScanner(cameraId) {
+      html5QrCode.start(
+        cameraId,
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 150 },
+          aspectRatio: 1.3333
+        },
+        onScanSuccess
+      ).catch(err => console.error(err));
+    }
 
     updateTable();
   </script>
