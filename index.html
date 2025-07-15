@@ -8,20 +8,28 @@
 </head>
 <body>
   <h1>📦 Barcode Inventory</h1>
+
   <video id="preview" autoplay></video>
+
   <button onclick="startScanner()">📷 Start Scanning</button>
+
+  <p id="errorLog" style="color:red; margin-top: 10px;"></p>
+
   <div id="output" class="hidden">
     <p><strong>Scanned Code:</strong> <span id="codeOutput"></span></p>
+
     <div id="dataEntry" class="hidden">
-      <input type="text" id="nameInput" placeholder="Enter product name"/>
-      <input type="number" id="priceInput" placeholder="Enter price"/>
+      <input type="text" id="nameInput" placeholder="Enter product name" />
+      <input type="number" id="priceInput" placeholder="Enter price" />
       <button onclick="saveData()">💾 Save</button>
     </div>
+
     <div id="savedData" class="hidden">
       <p><strong>Name:</strong> <span id="savedName"></span></p>
       <p><strong>Price:</strong> <span id="savedPrice"></span></p>
     </div>
   </div>
+
   <script src="https://unpkg.com/@zxing/browser@latest"></script>
   <script src="script.js"></script>
 </body>
