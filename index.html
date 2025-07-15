@@ -10,16 +10,16 @@
     th, td { border: 1px solid #ccc; padding: 8px; }
     th { background-color: #f2f2f2; }
     video { width: 100%; max-width: 400px; margin: auto; }
-    select, button { margin-top: 10px; padding: 8px; font-size: 16px; }
+    select, button, input[type=file] { margin-top: 10px; padding: 8px; font-size: 16px; }
+    .action-btn { margin: 0 5px; }
   </style>
 </head>
 <body>
   <h1>📦 مخزون الباركود</h1>
 
-
-  
   <select id="cameraSelect"></select>
   <button onclick="startCamera()">📷 ابدأ الكاميرا</button>
+  <input type="file" accept="image/*" onchange="scanFromGallery(event)">
   <div id="reader" style="width: 300px; height: 300px; margin: 20px auto;"></div>
 
   <h2>📋 قائمة المنتجات</h2>
@@ -28,6 +28,7 @@
       <th>الباركود</th>
       <th>الاسم</th>
       <th>السعر</th>
+      <th>إجراءات</th>
     </tr>
   </table>
 
@@ -43,7 +44,6 @@
         select.appendChild(option);
       });
 
-      // Try to select back camera by default
       const backCamera = devices.find(d => d.label.toLowerCase().includes("back"));
       if (backCamera) {
         select.value = backCamera.id;
@@ -63,12 +63,25 @@
       );
     }
 
+    function scanFromGallery(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      html5QrCode.scanFile(file, true)
+        .then(qrCodeMessage => {
+          onBarcodeScanned(qrCodeMessage);
+        })
+        .catch(err => {
+          alert("تعذر قراءة الباركود من الصورة.");
+          console.error(err);
+        });
+    }
+
     function onBarcodeScanned(code) {
       const products = JSON.parse(localStorage.getItem("products") || "{}");
 
       if (products[code]) {
-        const product = products[code];
-        addToTable(code, product.name, product.price);
+        updateTableRow(code, products[code].name, products[code].price);
       } else {
         const name = prompt("أدخل اسم المنتج:");
         const price = prompt("أدخل السعر:");
@@ -82,10 +95,59 @@
 
     function addToTable(barcode, name, price) {
       const table = document.getElementById("productsTable");
+      if (document.getElementById("row-" + barcode)) return;
+
       const row = table.insertRow(-1);
+      row.id = "row-" + barcode;
       row.insertCell(0).innerText = barcode;
       row.insertCell(1).innerText = name;
       row.insertCell(2).innerText = price;
+      const actions = row.insertCell(3);
+
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "✏️ تعديل";
+      editBtn.className = "action-btn";
+      editBtn.onclick = () => editProduct(barcode);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "🗑️ حذف";
+      deleteBtn.className = "action-btn";
+      deleteBtn.onclick = () => removeProduct(barcode);
+
+      actions.appendChild(editBtn);
+      actions.appendChild(deleteBtn);
+    }
+
+    function updateTableRow(barcode, name, price) {
+      const row = document.getElementById("row-" + barcode);
+      if (row) {
+        row.cells[1].innerText = name;
+        row.cells[2].innerText = price;
+      } else {
+        addToTable(barcode, name, price);
+      }
+    }
+
+    function editProduct(barcode) {
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      const current = products[barcode];
+      const newName = prompt("اسم جديد:", current.name);
+      const newPrice = prompt("سعر جديد:", current.price);
+
+      if (newName && newPrice) {
+        products[barcode] = { name: newName, price: newPrice };
+        localStorage.setItem("products", JSON.stringify(products));
+        updateTableRow(barcode, newName, newPrice);
+      }
+    }
+
+    function removeProduct(barcode) {
+      const row = document.getElementById("row-" + barcode);
+      if (row) row.remove();
+
+      const products = JSON.parse(localStorage.getItem("products") || "{}");
+      delete products[barcode];
+      localStorage.setItem("products", JSON.stringify(products));
     }
 
     window.onload = function () {
