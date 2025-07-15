@@ -31,7 +31,7 @@
   </table>
 
   <script>
-    let html5QrCode = new Html5Qrcode("reader");
+    let html5QrCode = new Html5Qrcode("reader")})
 
     Html5Qrcode.getCameras().then(devices => {
       const select = document.getElementById("cameraSelect");
@@ -47,13 +47,15 @@
 
     function startScanner() {
       const camId = document.getElementById("cameraSelect").value;
-      html5QrCode.start(
+      
+      html5QrCode.stop().then(() => {
+        html5QrCode.start(
         camId,
         { fps: 10, qrbox: 250 },
         qrCodeMessage => {
           handleScan(qrCodeMessage);
         },
-        error => {}
+        error => { console.error(error); }
       );
     }
 
