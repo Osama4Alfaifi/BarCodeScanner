@@ -1,93 +1,61 @@
 body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  direction: rtl;
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
   padding: 20px;
-  max-width: 1000px;
+  direction: rtl;
+}
+
+.container {
+  max-width: 1200px;
   margin: 0 auto;
-  background-color: #f5f5f5;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
   color: #2c3e50;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
   border-bottom: 2px solid #3498db;
 }
 
 .scanner-controls {
-  margin: 20px 0;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 10px;
-  background-color: white;
+  justify-content: center;
+  margin-bottom: 20px;
+  background-color: #f1f8fe;
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-#reader {
-  width: 100%;
-  max-width: 400px;
-  height: 300px;
-  margin: 20px auto;
-  border: 2px dashed #ccc;
-  border-radius: 10px;
-  overflow: hidden;
-  background-color: black;
-}
-
-#reader video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.error-message {
-  color: #e74c3c;
-  margin: 10px 0;
-  min-height: 20px;
-  font-weight: bold;
-}
-
-button, select {
+select, button, .gallery-btn {
   padding: 10px 15px;
   font-size: 16px;
   border-radius: 5px;
   border: 1px solid #ddd;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  background-color: white;
 }
 
-button {
+button, .gallery-btn {
   background-color: #3498db;
   color: white;
+  border: none;
   cursor: pointer;
   transition: background-color 0.3s;
-  border: none;
 }
 
-button:hover {
+button:hover, .gallery-btn:hover {
   background-color: #2980b9;
 }
 
-select {
-  background-color: white;
-  min-width: 200px;
-}
-
 .gallery-btn {
-  display: inline-block;
-  padding: 10px 15px;
   background-color: #2ecc71;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  border: none;
-  font-size: 16px;
 }
 
 .gallery-btn:hover {
@@ -98,30 +66,50 @@ select {
   display: none;
 }
 
+#reader {
+  width: 100%;
+  max-width: 400px;
+  height: 300px;
+  margin: 20px auto;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #000;
+}
+
+#reader video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.error-message {
+  color: #e74c3c;
+  text-align: center;
+  margin: 10px 0;
+  font-weight: bold;
+  min-height: 24px;
+}
+
 .search-container {
   margin: 20px 0;
-  background-color: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
 #searchInput {
   width: 100%;
-  max-width: 400px;
-  padding: 10px;
+  max-width: 500px;
+  padding: 12px 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 16px;
 }
 
-.table-container {
+.table-wrapper {
   overflow-x: auto;
-  margin-top: 20px;
-  background-color: white;
+  margin-top: 30px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
 table {
@@ -133,7 +121,7 @@ table {
 th, td {
   padding: 12px 15px;
   text-align: center;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
 }
 
 th {
@@ -141,6 +129,7 @@ th {
   color: white;
   position: sticky;
   top: 0;
+  font-weight: bold;
 }
 
 tr:nth-child(even) {
@@ -148,7 +137,7 @@ tr:nth-child(even) {
 }
 
 tr:hover {
-  background-color: #f1f1f1;
+  background-color: #f1f8fe;
 }
 
 .actions {
@@ -158,11 +147,8 @@ tr:hover {
 }
 
 .actions button {
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
   min-width: 80px;
 }
 
@@ -188,8 +174,7 @@ tr:hover {
     align-items: stretch;
   }
   
-  .scanner-controls > * {
-    margin: 5px 0;
+  select, button, .gallery-btn {
     width: 100%;
   }
   
@@ -197,7 +182,17 @@ tr:hover {
     height: 250px;
   }
   
-  table {
-    min-width: 100%;
+  th, td {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  
+  .actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .actions button {
+    width: 100%;
   }
 }

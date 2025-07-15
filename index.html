@@ -9,35 +9,37 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>📦 نظام إدارة المنتجات بالباركود</h1>
-  
-  <div class="scanner-controls">
-    <select id="cameraSelect"></select>
-    <button onclick="startScanner()">📷 ابدأ المسح</button>
-    <button onclick="stopScanner()">⏹ إيقاف المسح</button>
-    <label for="galleryInput" class="gallery-btn">📁 اختر من المعرض</label>
-    <input type="file" id="galleryInput" accept="image/*">
-  </div>
+  <div class="container">
+    <h1>📦 نظام إدارة المنتجات بالباركود</h1>
+    
+    <div class="scanner-controls">
+      <select id="cameraSelect"></select>
+      <button onclick="startScanner()">📷 ابدأ المسح</button>
+      <button onclick="stopScanner()">⏹ إيقاف المسح</button>
+      <label for="galleryInput" class="gallery-btn">📁 اختر من المعرض</label>
+      <input type="file" id="galleryInput" accept="image/*">
+    </div>
 
-  <div id="reader"></div>
-  <div id="error" class="error-message"></div>
+    <div id="reader"></div>
+    <div id="error" class="error-message"></div>
 
-  <div class="search-container">
-    <input type="text" id="searchInput" placeholder="ابحث عن منتج..." oninput="filterTable()">
-  </div>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="ابحث عن منتج..." oninput="filterTable()">
+    </div>
 
-  <div class="table-container">
-    <table id="productsTable">
-      <thead>
-        <tr>
-          <th>الباركود</th>
-          <th>الاسم</th>
-          <th>السعر</th>
-          <th>إجراءات</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>الباركود</th>
+            <th>الاسم</th>
+            <th>السعر</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
