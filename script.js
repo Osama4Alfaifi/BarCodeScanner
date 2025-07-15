@@ -26,6 +26,7 @@ function onScanSuccess(decodedText, decodedResult) {
   }
 
   html5QrcodeScanner.clear();
+  document.getElementById('backToScanButton').classList.remove('hidden');
 }
 
 function enableEdit() {
